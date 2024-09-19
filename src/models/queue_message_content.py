@@ -4,7 +4,9 @@ from dataclasses import dataclass
 
 @dataclass
 class IncomingData:
-    file_url: str
+    dataset_url: str
+    user_id: str
+    jobId: str
 
 
 @dataclass

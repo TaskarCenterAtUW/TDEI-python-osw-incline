@@ -24,8 +24,7 @@ class Inclination:
         self.container_name = self._config.event_bus.container_name
         self.download_dir = self._config.get_download_directory()
         is_exists = os.path.exists(self.download_dir)
-        # self.file_path = file_path
-        self.file_path = 'https://tdeisamplestorage.blob.core.windows.net/osw/test_upload/geojson_renton_hth.zip'
+        self.file_path = file_path
         self.prefix = get_unique_id() if not prefix else prefix
         parsed_url = urlparse(self.file_path)
         file_name = parsed_url.path.split('/')[-1]
