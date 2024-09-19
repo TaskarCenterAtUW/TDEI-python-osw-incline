@@ -59,7 +59,7 @@ class InclinationService:
                 if file_path:
                     file_path = self.upload_to_azure(
                         file_path=file_path,
-                        record_id=request_msg.messageId
+                        job_id=prefix
                     )
                 else:
                     is_valid = False
@@ -94,24 +94,16 @@ class InclinationService:
         self.listening_thread.join(timeout=0)
         return
 
-    def upload_to_azure(self, file_path=None, record_id=None):
+    def upload_to_azure(self, job_id: str, file_path=None):
         Logger.info(f' Uploading file to Azure: {file_path}')
         try:
-            unix_timestamp = int(time.time())
-            now = datetime.now()
-            year_month_str = now.strftime("%Y/%B").upper()
-            filename = f"{year_month_str}"
+            target_directory = f'jobs/{job_id}'
+            target_file_remote_path = f'{target_directory}/{os.path.basename(file_path)}'
 
-            base_filename, file_extension = os.path.splitext(os.path.basename(file_path))
-            updated_filename = f'{base_filename}_{unix_timestamp}{file_extension}'
-
-            if record_id:
-                filename = f'{filename}/{record_id}'
-            filename = f'{filename}/{updated_filename}'
             container = self.storage_client.get_container(
                 container_name=self.container_name
             )
-            file = container.create_file(name=filename)
+            file = container.create_file(name=target_file_remote_path)
             with open(file_path, 'rb') as data:
                 file.upload(data)
             uploaded_path = file.get_remote_url()
