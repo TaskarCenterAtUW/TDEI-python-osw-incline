@@ -1,4 +1,5 @@
 import os
+import gc
 import threading
 from src.logger import Logger
 from python_ms_core import Core
@@ -30,7 +31,6 @@ class InclinationService:
             if message is not None:
                 request_message = QueueMessage.to_dict(message)
                 request_msg = RequestMessage.from_dict(request_message)
-                Logger.info(request_msg)
                 self.process_message(request_msg)
             else:
                 Logger.info(' No Message')
@@ -40,6 +40,7 @@ class InclinationService:
     def process_message(self, request_msg: RequestMessage) -> None:
         prefix = request_msg.data.jobId if request_msg.data.jobId else get_unique_id()
         file_path = request_msg.data.dataset_url
+        inclination = None
         try:
             Logger.info(f' Message ID: {request_msg.messageId}')
             is_valid = True
@@ -70,6 +71,8 @@ class InclinationService:
         finally:
             Logger.info(f' Cleaning up files with prefix: {prefix}')
             clean_up(path=f'{self._config.get_download_directory()}/{prefix}')
+            del inclination
+            gc.collect()
 
     def send_status(self, valid: bool, request_message: RequestMessage, file_path: str) -> None:
         response_message = {
