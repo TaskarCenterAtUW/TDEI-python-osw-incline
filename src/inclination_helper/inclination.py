@@ -70,7 +70,7 @@ class Inclination:
             edges_file=str(graph_edges_path),
             debug=True
         )
-        result = dem_processor.calculate(skip_existing_tags=True)
+        result = dem_processor.calculate()
         Logger.info(f"Inclination calculation result: {'Completed' if result else 'Failed'}")
         Logger.info(f'Creating zip file for all files')
         zip_file_path = create_zip(
