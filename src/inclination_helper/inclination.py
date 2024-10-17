@@ -1,4 +1,5 @@
 import os
+import gc
 import json
 from pathlib import Path
 from src.logger import Logger
@@ -36,7 +37,7 @@ class Inclination:
 
     def calculate(self):
         Logger.info(f'Calculating inclination for file: {self.file_path}')
-        downloaded_file_path = self.download_file(self.file_path)
+        downloaded_file_path = self.download_file(file_path=self.file_path)
         Logger.info(f'Unzipping file: {downloaded_file_path}')
         unzip_files, all_files = unzip(
             zip_file=downloaded_file_path,
@@ -55,15 +56,19 @@ class Inclination:
         Logger.info(f'No of edges: {len(EDGE_FILE["features"])} to be processed')
 
         Logger.info('Calculating NED13 files for the bounds')
+        bounds = []
         for feature in EDGE_FILE['features']:
-            dem_downloader.get_ned13_for_bounds(bounds=shape(feature['geometry']).bounds)
+            bounds.append(shape(feature['geometry']).bounds)
+
+        dem_downloader.get_ned13_for_bounds(total_bounds=bounds)
 
         tile_sets = dem_downloader.list_ned13s_full_paths()
         Logger.info(f'No of NED13 files: {len(tile_sets)} to be processed')
         dem_processor = OSWIncline(
             dem_files=tile_sets,
-            nodes_file=graph_nodes_path,
-            edges_file=graph_edges_path,
+            nodes_file=str(graph_nodes_path),
+            edges_file=str(graph_edges_path),
+            debug=True
         )
         result = dem_processor.calculate()
         Logger.info(f"Inclination calculation result: {'Completed' if result else 'Failed'}")
@@ -72,6 +77,9 @@ class Inclination:
             files=all_files,
             zip_file_path=os.path.join(self.download_dir, f'{self.prefix}/{self.updated_file_name}')
         )
+
+        gc.collect()
+
         return zip_file_path
 
     def download_file(self, file_path: str) -> str:
