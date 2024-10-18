@@ -1,0 +1,5 @@
+python-ms-core~=0.0.22
+fastapi
+uvicorn
+pydantic-settings
+osw-incline~=0.0.2

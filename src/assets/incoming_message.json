@@ -1,0 +1,9 @@
+{
+    "messageId": "234",
+    "messageType": "Incline",
+    "data": {
+        "jopbId": "12345",
+        "dataset_url": "https://tdeisamplestorage.blob.core.windows.net/osw/test_upload/geojson_renton_hth.zip",
+        "user_id": "1726663630"
+    }
+}
