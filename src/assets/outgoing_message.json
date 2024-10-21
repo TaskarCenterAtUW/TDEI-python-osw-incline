@@ -1,0 +1,11 @@
+{
+  "message": "",
+  "messageId": "2344",
+  "messageType": "Incline",
+  "publishedDate": "2024-09-18 18:14:54.305832",
+  "data": {
+    "message": "Success",
+    "success": true,
+    "file_upload_path": "https://tdeisamplestorage.blob.core.windows.net/osw/2024/SEPTEMBER/12345/2344/geojson_renton_hth_added_inclination_1726663630.zip"
+  }
+}
