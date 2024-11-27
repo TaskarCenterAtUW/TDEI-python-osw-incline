@@ -141,7 +141,7 @@ class TestInclinationService(unittest.TestCase):
         # Assert
         self.assertIsNone(result)
 
-    @patch('builtins.open', new_callable=mock_open)  # Mock open to simulate file handling
+    @patch('builtins.open', new_callable=mock_open)
     def test_upload_to_azure_container_error(self, mock_open):
         # Arrange
         self.service.storage_client.get_container.side_effect = Exception('Container error')
@@ -151,6 +151,41 @@ class TestInclinationService(unittest.TestCase):
 
         # Assert
         self.assertIsNone(result)
+
+    @patch('src.services.inclination_service.threading.Thread')
+    def test_stop_listening(self, mock_thread):
+        # Arrange
+        mock_thread_instance = MagicMock()
+        mock_thread.return_value = mock_thread_instance
+
+        self.service.listening_thread = mock_thread_instance
+
+        # Act
+        result = self.service.stop_listening()
+
+        # Assert
+        mock_thread_instance.join.assert_called_once_with(timeout=0)
+        self.assertIsNone(result)
+
+    @patch('builtins.open', new_callable=mock_open, read_data='file data')
+    def test_upload_to_azure_success(self, mock_file):
+        job_id = 'test_job_id'
+        file_path = '/path/to/test_file.geojson'
+
+        mock_container = MagicMock()
+        self.service.storage_client.get_container.return_value = mock_container
+
+        mock_file_obj = MagicMock()
+        mock_container.create_file.return_value = mock_file_obj
+        mock_file_obj.get_remote_url.return_value = 'https://azure.example.com/test-container/jobs/test_job_id/test_file.geojson'
+
+        result = self.service.upload_to_azure(job_id, file_path)
+
+        self.service.storage_client.get_container.assert_called_once_with(container_name='test_container')
+        mock_container.create_file.assert_called_once_with(name='jobs/test_job_id/test_file.geojson')
+        mock_file.assert_called_once_with(file_path, 'rb')
+        mock_file_obj.upload.assert_called_once_with(mock_file())
+        self.assertEqual(result, 'https://azure.example.com/test-container/jobs/test_job_id/test_file.geojson')
 
 
 if __name__ == '__main__':
