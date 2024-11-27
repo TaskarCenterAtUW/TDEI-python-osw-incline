@@ -1,5 +1,5 @@
-python-ms-core~=0.0.22
+python-ms-core~=0.0.23
 fastapi
 uvicorn
 pydantic-settings
-osw-incline~=0.0.3
+osw-incline~=0.0.4
