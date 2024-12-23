@@ -1,6 +1,7 @@
 import os
 import gc
 import threading
+import osw_incline
 from src.logger import Logger
 from python_ms_core import Core
 from src.config import Settings
@@ -78,7 +79,11 @@ class InclinationService:
         response_message = {
             'message': 'Success' if valid else 'Failed',
             'success': valid,
-            'file_upload_path': file_path
+            'file_upload_path': file_path,
+            'package': {
+                'python-ms-core': Core.__version__,
+                'osw-incline': osw_incline.__version__
+            }
         }
         Logger.info(
             f' Publishing new message with ID: {request_message.messageId} with status: {valid}')
