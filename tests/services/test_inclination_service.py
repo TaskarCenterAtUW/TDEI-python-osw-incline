@@ -182,7 +182,7 @@ class TestInclinationService(unittest.TestCase):
         result = self.service.upload_to_azure(job_id, file_path)
 
         self.service.storage_client.get_container.assert_called_once_with(container_name='test_container')
-        mock_container.create_file.assert_called_once_with(name='jobs/test_job_id/incline/test_file.geojson')
+        mock_container.create_file.assert_called_once_with(name='jobs/test_job_id/test_file.geojson')
         mock_file.assert_called_once_with(file_path, 'rb')
         mock_file_obj.upload.assert_called_once_with(mock_file())
         self.assertEqual(result, 'https://azure.example.com/test-container/jobs/test_job_id/test_file.geojson')

@@ -103,7 +103,7 @@ class InclinationService:
     def upload_to_azure(self, job_id: str, file_path=None):
         Logger.info(f' Uploading file to Azure: {file_path}')
         try:
-            target_directory = f'jobs/{job_id}/incline'
+            target_directory = f'jobs/{job_id}'
             target_file_remote_path = f'{target_directory}/{os.path.basename(file_path)}'
 
             container = self.storage_client.get_container(
