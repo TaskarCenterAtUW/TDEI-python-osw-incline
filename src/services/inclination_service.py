@@ -1,6 +1,7 @@
 import os
 import gc
 import threading
+import osw_incline
 from src.logger import Logger
 from python_ms_core import Core
 from src.config import Settings
@@ -78,7 +79,11 @@ class InclinationService:
         response_message = {
             'message': 'Success' if valid else 'Failed',
             'success': valid,
-            'file_upload_path': file_path
+            'file_upload_path': file_path,
+            'package': {
+                'python-ms-core': Core.__version__,
+                'osw-incline': osw_incline.__version__
+            }
         }
         Logger.info(
             f' Publishing new message with ID: {request_message.messageId} with status: {valid}')
@@ -98,7 +103,7 @@ class InclinationService:
     def upload_to_azure(self, job_id: str, file_path=None):
         Logger.info(f' Uploading file to Azure: {file_path}')
         try:
-            target_directory = f'jobs/{job_id}'
+            target_directory = f'jobs/{job_id}/incline'
             target_file_remote_path = f'{target_directory}/{os.path.basename(file_path)}'
 
             container = self.storage_client.get_container(
