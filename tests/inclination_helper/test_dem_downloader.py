@@ -45,7 +45,8 @@ class TestDEMDownloader(unittest.TestCase):
     @patch('src.inclination_helper.dem_downloader.Path.glob')
     @patch('src.inclination_helper.dem_downloader.Path.mkdir')
     def test_list_ned13s(self, mock_mkdir, mock_glob):
-        mock_glob.return_value = [Path('/tmp/test_workdir/dems/n35w119.tif'), Path('/tmp/test_workdir/dems/n36w119.tif')]
+        mock_glob.return_value = [Path('/tmp/test_workdir/dems/n35w119.tif'),
+                                  Path('/tmp/test_workdir/dems/n36w119.tif')]
 
         # Act
         result = self.dem_downloader.list_ned13s()
@@ -57,7 +58,8 @@ class TestDEMDownloader(unittest.TestCase):
     @patch('src.inclination_helper.dem_downloader.Path.glob')
     @patch('src.inclination_helper.dem_downloader.Path.mkdir')
     def test_list_ned13s_full_paths(self, mock_mkdir, mock_glob):
-        mock_glob.return_value = [Path('/tmp/test_workdir/dems/n35w119.tif'), Path('/tmp/test_workdir/dems/n36w119.tif')]
+        mock_glob.return_value = [Path('/tmp/test_workdir/dems/n35w119.tif'),
+                                  Path('/tmp/test_workdir/dems/n36w119.tif')]
         self.dem_downloader.ned_13_tiles = ['n35w119', 'n36w119']
 
         # Act
@@ -88,14 +90,16 @@ class TestDEMDownloader(unittest.TestCase):
         mock_open_file.assert_called_once_with(Path('/tmp/test_workdir/dems/n36w119.tif'), 'wb')
         mock_open_file().write.assert_called_once_with(b'data_chunk')
 
-    # Test for invalid tile fetching
-    # def test_fetch_ned_tile_invalid_tile(self):
-    #     with self.assertRaises(ValueError) as context:
-    #         self.dem_downloader.fetch_ned_tiles(['n40w120'])
-    #
-    #     self.assertEqual(str(context.exception), 'Invalid tile name n40w120')
+    def test_fetch_ned_tile_invalid_tile(self):
+        ned_13_index = []
+        invalid_tile_name = 'invalid_tile'
+        dem_downloader = DEMDownloader(ned_13_index=ned_13_index, workdir=self.workdir)
+
+        with self.assertRaises(ValueError) as context:
+            dem_downloader.download_tile(invalid_tile_name)
+
+        self.assertEqual(str(context.exception), 'Invalid tile name invalid_tile')
 
 
 if __name__ == '__main__':
     unittest.main()
-

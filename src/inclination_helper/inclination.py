@@ -29,8 +29,7 @@ class Inclination:
         self.prefix = get_unique_id() if not prefix else prefix
         parsed_url = urlparse(self.file_path)
         file_name = parsed_url.path.split('/')[-1]
-        base_name, extension = os.path.splitext(file_name)
-        self.updated_file_name = f'{base_name}_added_inclination{extension}'
+        self.updated_file_name = file_name
         self.root_path = os.path.join(os.getcwd(), 'src')
         if not is_exists:
             os.makedirs(self.download_dir)
