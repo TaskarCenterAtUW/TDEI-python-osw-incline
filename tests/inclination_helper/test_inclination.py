@@ -34,6 +34,7 @@ class TestInclination(unittest.TestCase):
         mock_core.return_value.get_storage_client.assert_called_once()
 
     @patch('src.inclination_helper.inclination.open', new_callable=mock_open)
+    @patch('src.inclination_helper.inclination.os.path.getsize', return_value=10)
     @patch('src.inclination_helper.inclination.create_zip')
     @patch('src.inclination_helper.inclination.OSWIncline')
     @patch('src.inclination_helper.inclination.DEMDownloader')
@@ -41,7 +42,7 @@ class TestInclination(unittest.TestCase):
     @patch('src.inclination_helper.inclination.unzip')
     @patch('src.inclination_helper.inclination.Core')
     def test_calculate_inclination(self, mock_core, mock_unzip, mock_path, mock_dem_downloader, mock_osw_incline,
-                                   mock_create_zip, mock_open):
+                                   mock_create_zip, mock_getsize, mock_open):
         # Arrange
         # Mock for the 'ned_13_index.json' file
         ned_13_index_content = json.dumps({"tiles": ["tile1", "tile2"]})

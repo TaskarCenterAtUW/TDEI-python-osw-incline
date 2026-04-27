@@ -1,4 +1,5 @@
 import os
+import zipfile
 import unittest
 from unittest.mock import patch, call
 from src.inclination_helper.utils import get_unique_id, unzip, clean_up, create_zip
@@ -72,17 +73,22 @@ class TestUtils(unittest.TestCase):
         # Arrange
         files = ['file1.txt', 'file2.txt']
         zip_file_path = 'output.zip'
-        mock_zip = mock_zipfile.return_value.__enter__.return_value
+        mock_zip_writer = mock_zipfile.return_value.__enter__.return_value
+        mock_zip_reader = mock_zipfile.return_value.__enter__.return_value
+        mock_zip_reader.namelist.return_value = ['file1.txt', 'file2.txt']
 
         # Act
-        result = create_zip(files, zip_file_path)
+        with patch('src.inclination_helper.utils.os.path.isfile', return_value=True):
+            result = create_zip(files, zip_file_path)
 
         # Assert
         self.assertEqual(result, zip_file_path)
-        mock_zipfile.assert_called_once_with(zip_file_path, 'w')
+        self.assertEqual(mock_zipfile.call_count, 2)
+        mock_zipfile.assert_any_call(zip_file_path, 'w', compression=zipfile.ZIP_DEFLATED, allowZip64=True)
+        mock_zipfile.assert_any_call(zip_file_path, 'r')
 
         # Check that write was called with the correct arguments
-        mock_zip.write.assert_has_calls([
+        mock_zip_writer.write.assert_has_calls([
             call('file1.txt', 'file1.txt'),
             call('file2.txt', 'file2.txt')
         ], any_order=True)
