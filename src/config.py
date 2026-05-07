@@ -1,7 +1,11 @@
 import os
 from typing import ClassVar
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
+try:
+    from pydantic_settings import BaseSettings
+except ModuleNotFoundError:
+    class BaseSettings:  # pragma: no cover - compatibility fallback for test environments
+        pass
 
 load_dotenv()
 
@@ -17,7 +21,8 @@ class EventBusSettings:
 class Settings(BaseSettings):
     app_name: str = 'python-osw-inclination'
     event_bus: ClassVar[EventBusSettings] = EventBusSettings()  # Annotate event_bus as a ClassVar
-    max_concurrent_messages: int = int(os.environ.get('MAX_CONCURRENT_MESSAGES', 2))  # Convert to int
+    max_concurrent_messages: int = int(os.environ.get('MAX_CONCURRENT_MESSAGES', 1))  # Convert to int
+    max_receivable_messages: int = int(os.environ.get('MAX_RECEIVABLE_MESSAGES', 1))  # -1 means no limit
 
     def get_root_directory(self) -> str:
         return os.path.dirname(os.path.abspath(__file__))

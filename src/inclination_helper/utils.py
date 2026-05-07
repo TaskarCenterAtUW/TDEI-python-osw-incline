@@ -39,10 +39,24 @@ def clean_up(path, download_dir=None):
 
 
 def create_zip(files, zip_file_path):
-    with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
+    added_files = 0
+    with zipfile.ZipFile(
+        zip_file_path,
+        'w',
+        compression=zipfile.ZIP_DEFLATED,
+        allowZip64=True
+    ) as zip_file:
         for file in files:
-            if not os.path.isdir(file):
+            if os.path.isfile(file):
                 # Add each file to the zip file
                 zip_file.write(file, os.path.basename(file))
+                added_files += 1
+
+    if added_files == 0:
+        raise ValueError(f'No files were added to zip: {zip_file_path}')
+
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_file:
+        if len(zip_file.namelist()) == 0:
+            raise ValueError(f'Created zip is empty: {zip_file_path}')
 
     return zip_file_path

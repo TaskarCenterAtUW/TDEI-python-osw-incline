@@ -3,3 +3,4 @@ fastapi
 uvicorn
 pydantic-settings
 osw-incline~=0.0.4
+psutil
