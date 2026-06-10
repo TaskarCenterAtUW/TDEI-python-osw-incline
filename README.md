@@ -1,4 +1,10 @@
 # TDEI-python-osw-incline
+
+[![Unit Tests](https://github.com/TaskarCenterAtUW/TDEI-python-osw-incline/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/TaskarCenterAtUW/TDEI-python-osw-incline/actions/workflows/unit_tests.yml)
+[![Coverage](https://raw.githubusercontent.com/TaskarCenterAtUW/TDEI-python-osw-incline/badges/coverage.svg)](https://github.com/TaskarCenterAtUW/TDEI-python-osw-incline/tree/badges)
+[![osw-incline](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FTaskarCenterAtUW%2FTDEI-python-osw-incline%2Fdev%2Frequirements.txt&search=%28%3Fm%29%5Eosw-incline%5B~%3D%5D%3D%28%5B%5E%5Cr%5Cn%5D%2B%29&replace=%241&label=osw-incline&color=blue&cacheSeconds=60)](https://pypi.org/project/osw-incline/)
+[![python-ms-core](https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fraw.githubusercontent.com%2FTaskarCenterAtUW%2FTDEI-python-osw-incline%2Fdev%2Frequirements.txt&search=%28%3Fm%29%5Epython-ms-core%3D%3D%28%5B%5E%5Cr%5Cn%5D%2B%29&replace=%241&label=python-ms-core&color=blue&cacheSeconds=60)](https://pypi.org/project/python-ms-core/)
+
 Service that accepts queue requests and adds incline values to an OSW dataset.
 
 ## What It Does
