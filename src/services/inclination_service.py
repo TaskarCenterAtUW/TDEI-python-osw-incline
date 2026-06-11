@@ -21,9 +21,11 @@ class InclinationService:
     _config = Settings()
 
     def __init__(self):
-        # Keep lifecycle same as osw-validation; only force callback worker mode to
-        # thread by default to avoid subprocess worker exits in this runtime.
-        os.environ.setdefault('TOPIC_CALLBACK_EXECUTION_MODE', 'thread')
+        # Keep Service Bus receiver and lock renewal in the parent process while
+        # long-running inclination work runs in a Linux forked child process.
+        os.environ['TOPIC_CALLBACK_EXECUTION_MODE'] = 'process'
+        os.environ['TOPIC_CALLBACK_PROCESS_START_METHOD'] = 'fork'
+        os.environ['TOPIC_CALLBACK_PROCESS_FALLBACK_MODE'] = 'error'
 
         self.core = Core()
         self._subscription_name = self._config.event_bus.request_subscription
@@ -40,12 +42,17 @@ class InclinationService:
     def subscribe(self) -> None:
         # Process the incoming message
         def process(message) -> None:
-            if message is not None:
+            try:
+                if message is None:
+                    Logger.info(' No Message')
+                    return
+
                 request_message = QueueMessage.to_dict(message)
                 request_msg = RequestMessage.from_dict(request_message)
                 self.process_message(request_msg)
-            else:
-                Logger.info(' No Message')
+            except Exception as exc:
+                # Never let callback crash propagate; this prevents unnecessary DLQ.
+                Logger.error(f'Unhandled callback error: {exc}')
 
         self.request_topic.subscribe(
             subscription=self._subscription_name,
