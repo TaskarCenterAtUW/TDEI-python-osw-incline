@@ -1,5 +1,4 @@
 import os
-import psutil
 from src.config import Settings
 from functools import lru_cache
 from fastapi import FastAPI, APIRouter, Depends, status
@@ -38,11 +37,15 @@ async def startup_event(settings: Settings = Depends(get_settings)) -> None:
         print('\x1b[31m RESPONSE_TOPIC=xxxx \x1b[0m')
         print('\x1b[31m QUEUECONNECTION=xxxx \x1b[0m')
         print('\x1b[31m STORAGECONNECTION=xxxx \x1b[0m \n\n')
-        parent_pid = os.getpid()
-        parent = psutil.Process(parent_pid)
-        for child in parent.children(recursive=True):
-            child.kill()
-        parent.kill()
+        try:
+            import psutil
+            parent_pid = os.getpid()
+            parent = psutil.Process(parent_pid)
+            for child in parent.children(recursive=True):
+                child.kill()
+            parent.kill()
+        except ModuleNotFoundError:
+            os._exit(1)
 
 
 @app.on_event('shutdown')

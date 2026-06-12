@@ -1,12 +1,14 @@
 import os
-import gc
 import json
 from pathlib import Path
 from src.logger import Logger
 from src.config import Settings
 from python_ms_core import Core
 from urllib.parse import urlparse
-from osw_incline import OSWIncline
+try:
+    from osw_incline import OSWIncline
+except ModuleNotFoundError:
+    OSWIncline = None
 from shapely.geometry import shape
 from src.inclination_helper.dem_downloader import DEMDownloader
 from src.inclination_helper.utils import get_unique_id, unzip, create_zip
@@ -63,6 +65,8 @@ class Inclination:
 
         tile_sets = dem_downloader.list_ned13s_full_paths()
         Logger.info(f'No of NED13 files: {len(tile_sets)} to be processed')
+        if OSWIncline is None:
+            raise ModuleNotFoundError('osw_incline is not installed')
         dem_processor = OSWIncline(
             dem_files=tile_sets,
             nodes_file=str(graph_nodes_path),
@@ -76,8 +80,8 @@ class Inclination:
             files=all_files,
             zip_file_path=os.path.join(self.download_dir, f'{self.prefix}/{self.updated_file_name}')
         )
-
-        gc.collect()
+        if os.path.getsize(zip_file_path) == 0:
+            raise ValueError(f'Created zip file is empty: {zip_file_path}')
 
         return zip_file_path
 

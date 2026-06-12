@@ -47,20 +47,62 @@ jobs:
             exit 1
           fi
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage (show failures in logs)
+        shell: bash
         run: |
-          timestamp=$(date '+%Y-%m-%d_%H-%M-%S')
+          set -o pipefail
+          timestamp="$(date '+%Y-%m-%d_%H-%M-%S')"
           mkdir -p test_results
           log_file="test_results/${timestamp}_report.log"
-          echo -e "\nTest Cases Report Report\n" >> $log_file
-          # Run the tests and append output to the log file
-          python -m coverage run --source=src -m unittest discover -s tests >> $log_file 2>&1
-          echo -e "\nCoverage Report\n" >> $log_file
-          coverage report >> $log_file
+
+          {
+            echo
+            echo "Test Cases Report"
+            echo
+          } | tee -a "$log_file"
+
+          # Run unittest in verbose mode; mirror output to console and file
+          python -m coverage run --source=src -m unittest discover -s tests -v 2>&1 | tee -a "$log_file"
+          test_status=${PIPESTATUS[0]}
+
+          echo -e "\nCoverage Report\n" | tee -a "$log_file"
+          coverage report 2>&1 | tee -a "$log_file"
+
+          exit $test_status
 
       - name: Check coverage
         run: |
           coverage report --fail-under=85
+
+      - name: Generate coverage badge
+        run: |
+          pip install coverage-badge
+          mkdir -p badge-out
+          coverage-badge -f -o badge-out/coverage.svg
+
+      - name: Publish coverage badge to badges branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cp badge-out/coverage.svg /tmp/coverage.svg
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin badges || true
+          if git show-ref --verify --quiet refs/remotes/origin/badges; then
+            git checkout badges
+          else
+            git checkout --orphan badges
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          cp /tmp/coverage.svg coverage.svg
+          git add coverage.svg
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update coverage badge"
+            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:badges
+          else
+            echo "No badge changes to commit."
+          fi
 
       - name: Upload report to Azure
         uses: LanceMcCarthy/Action-AzureBlobUpload@v2
