@@ -84,7 +84,7 @@ class TestUtils(unittest.TestCase):
         # Assert
         self.assertEqual(result, zip_file_path)
         self.assertEqual(mock_zipfile.call_count, 2)
-        mock_zipfile.assert_any_call(zip_file_path, 'w', compression=zipfile.ZIP_DEFLATED, allowZip64=True)
+        mock_zipfile.assert_any_call(zip_file_path, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6)
         mock_zipfile.assert_any_call(zip_file_path, 'r')
 
         # Check that write was called with the correct arguments
