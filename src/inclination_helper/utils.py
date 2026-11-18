@@ -44,7 +44,7 @@ def create_zip(files, zip_file_path):
         zip_file_path,
         'w',
         compression=zipfile.ZIP_DEFLATED,
-        allowZip64=True
+        compresslevel=6
     ) as zip_file:
         for file in files:
             if os.path.isfile(file):
